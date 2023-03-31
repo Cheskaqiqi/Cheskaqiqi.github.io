@@ -8,10 +8,10 @@
   <meta name="description" content="">
   <meta name="author" content="Shuqi Liang">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="Shuqi&#39;s Blog"/>
+  <meta property="og:title" content="BINARY SEARCH AND VARIATIONS"/>
   <meta property="og:description" content="" />
   <meta property="og:site_name" content="Shuqi&#39;s Blog"/>
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="article" />
   <meta property="og:image" content="http://example.com"/>
   
     <link rel="alternate" href="/atom.xml" title="Shuqi&#39;s Blog" type="application/atom+xml">
@@ -49,7 +49,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">Shuqi&#39;s Blog</p>
+          <p class="title">BINARY SEARCH AND VARIATIONS</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -94,92 +94,72 @@
   </div>
 </header>
 
-<!-- Home Page Post List -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-10 col-md-10 col-md-offset-1">
-      
-        <div class="post-item-wrapper">
-  <a href="/2022/09/17/New%20Document/" class="post-title">
-      mathematical induction
-  </a>
-  <div class="post-excerpt">
-    <!-- Post Date and Categories -->
-    <div class="date-and-category">
-      <div class="date">2022-09-17</div>
-      <div class="categories">
-        
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
           
+            <!-- Author -->
+            <span class="author info">By Shuqi Liang</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2022-02-11</span>
+            <span class="time">12:09:52</span>
+          </span>
+          
+          <!--  Categories  -->
+            <span class="categories info">Under 
 
 <a href="/categories/ANALYSIS-OF-ALGORITHMS/">ANALYSIS OF ALGORITHMS</a>
-
+</span>
+          
+        </div>
+        <!-- Tags -->
         
+          <div class="post-tags text-muted">
+            Tags: 
+
+<a class="tag" href="/tags/cs/">#cs</a>
+
+
+          </div>
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <p>#Binary Search and Variations</p>
+<ul>
+<li>Idea: cut search space in half (about half) by asking only one question.</li>
+<li>Also work when, with constant time, cut search space from n to n<br>a, where a &gt; 1.</li>
+<li>Used often in computer science.</li>
+<li>Pure binary search</li>
+</ul>
+<p>x1, x2, . . . , xn is a sequence of real numbers such that<br>x1 ≤ x2 ≤ · · · ≤ xn<br>Problem: Given a real number z, we want to find whether z appears in the sequence, and<br>if it does, to find an index i such that xi = z.<br>Solution: binary search!</p>
+<p>Binary search:<br>Question: “Is xn/2 &lt; z?”<br>Yes: binary search range becomes xn/2+1, . . . xn<br>No: binary search range becomes x1, . . . , xn/2<br>Complexity: O(log2 n).</p>
+<p>#A More General Version<br>Input: a sorted sequence, x1 ≤ x2 ≤ . . . ≤ xn, and a target value z<br>Output: the largest index i, s.t. xi ≤ z, if there is no such i then return 0;</p>
+<ol>
+<li>If x1 &gt; z, return 0;</li>
+<li>If xn ≤ z, return n;</li>
+<li>l = 1; r = n; (xl ≤ z &lt; xr)</li>
+<li>if l = r − 1 return l;</li>
+<li>Set m to b<br>l+r/2，the greatest integer less than or equal to l+r/2<br>which is the middle between l and r</li>
+<li>if xm &gt; z, then r = m; goto step 4;</li>
+<li>if xm ≤ z, then l = m; goto step 4;</li>
+</ol>
+<p>#Binary Search in a Cyclic Sequence<br>Definition. A sequence x1, x2, . . . , xn is said to be cyclically sorted if the smallest<br>number in the sequence is xi<br>for some unknown i, and the sequence<br>xi<br>, xi+1, . . . , xn, x1, x2, . . . , xi−1<br>is sorted.<br>The Problem: Given a cyclically sorted list, find the position of the minimum element in<br>the list (we assume elements are distinct).</p>
+<p>Solution: For any two numbers xk, xm, such that k &lt; m, compare xk with xm.</p>
+<ol>
+<li>If xk &lt; xm then i cannot be in the range k &lt; j ≤ m (k is possible)</li>
+<li>If xk &gt; xm then i must be in the range k &lt; j ≤ m</li>
+</ol>
+<p>Is xn/2 &lt; xn?<br>Yes: search range 1 . . . n/2. No: search range n/2 + 1, . . . n.<br>Find the index of the smallest element in O(logn) time</p>
+
+        </div>
       </div>
     </div>
-    <!-- Post Excerpt -->
-    <div class="excerpt typo">Induction is  common to both Proof of theorems and design of combinatorial algorithms.We should use known mathematical proof methods to help create algorithms</div>
-    <!-- Post Tags -->
-    <div class="tags">
-      
-        
-
-<a class="tag" href="/tags/cs/">cs</a>
-
-
-      
-    </div>
   </div>
-</div>
-
-      
-        <div class="post-item-wrapper">
-  <a href="/2022/02/11/red-black-tree/" class="post-title">
-      BINARY SEARCH AND VARIATIONS
-  </a>
-  <div class="post-excerpt">
-    <!-- Post Date and Categories -->
-    <div class="date-and-category">
-      <div class="date">2022-02-11</div>
-      <div class="categories">
-        
-          
-
-<a href="/categories/ANALYSIS-OF-ALGORITHMS/">ANALYSIS OF ALGORITHMS</a>
-
-        
-      </div>
-    </div>
-    <!-- Post Excerpt -->
-    <div class="excerpt typo">Input: a sorted sequence, x1 ≤ x2 ≤ . . . ≤ xn, and a target value z Output: the largest index i, s.t. xi ≤ z, if there is no such i then return 0</div>
-    <!-- Post Tags -->
-    <div class="tags">
-      
-        
-
-<a class="tag" href="/tags/cs/">cs</a>
-
-
-      
-    </div>
-  </div>
-</div>
-
-      
-    </div>
-  </div>
-</div>
-
-<!-- Pagination -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-10 col-md-10 col-md-offset-1">
-      <ul class="pagination">
-          
-          
-      </ul>
-    </div>
-  </div>
-</div>
+</article>
 
 
 

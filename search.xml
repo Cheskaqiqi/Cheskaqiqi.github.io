@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>GSoC week3-4</title>
+      <link href="/2023/06/19/Week3-4/"/>
+      <url>/2023/06/19/Week3-4/</url>
+      
+        <content type="html"><![CDATA[<h1 id="week3-4"><a href="#week3-4" class="headerlink" title="week3-4"></a>week3-4</h1><p>When I started studying git worktree, I went through a period of mental confusion. At first, I started studying the documentation to get familiar with the command, which differs significantly from other commands: it manages multiple working trees attached to the same repository. I spent a lot of time understanding this concept, and it was only after trying to use the command that I understood how it should be used. However, I was still puzzled by this concept. I wondered how it was related to the index, since it creates a new working tree each time. When I was confused, I thought I should seriously study the source code and look for places where it interacts with the index.</p><p>I eventually found two places related to the index:</p><ol><li><p>The ‘validate_no_submodules’ function, which checks if there are any submodules present in the worktree.</p></li><li><p>The ‘check_clean_worktree’ function, which verifies if a worktree is ‘clean’, i.e., there are no untracked or modified but uncommitted files. This is done by running the ‘git status’ command, and an error message is thrown if the worktree is not clean. Given that ‘git status’ is already sparse-aware, the function is also sparse-aware.</p></li></ol><p>So the next steps were quite similar to those with diff-tree, as we had evidence to show that we didn’t need to do any extra handling of the index. Finally, we didn’t see a significant improvement in performance testing, mainly because the time taken to read the index is minuscule compared to filesystem operations.</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> GSoC </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> GSoC </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>GSoC week1-2</title>
+      <link href="/2023/06/19/Week1-2/"/>
+      <url>/2023/06/19/Week1-2/</url>
+      
+        <content type="html"><![CDATA[<h1 id="week1-2"><a href="#week1-2" class="headerlink" title="week1-2"></a>week1-2</h1><p>During the first week, I mainly dove into the documentation of git diff-tree, and also skimmed through the source code to help me write better tests. Diff-tree primarily has two commands related to the index: one is “Compares the content and mode of the blobs found via two tree objects”, and the other one compares commit objects. Therefore, I wrote tests around these two aspects. Super luckily, when I set the “requires-full-index” to false for “diff-tree”, all the tests passed. This indirectly proves that “diff-tree” might have successfully implemented sparse indexing. </p><p>But that’s not enough. We need to be certain that this sparse index integration is correct. We should verify that the intended usage associated with those two reads will still work with a sparse index.</p><p>So, I started digging into the source code, trying to find proof of lower-level functions already being sparse-aware, but I couldn’t find any. Thanks to the help of my mentor, who clarified a lot of concepts for me after I posted my first RFC patch, I came to understand the reasons for the successful integration:</p><ol><li><p>The first index read was added in fd66bcc31ff (diff-tree: read the index so attribute checks work in bare repositories, 2017-12-06) to deal with reading ‘.gitattributes’ content. 77efbb366ab (attr: be careful about sparse directories, 2021-09-08) established that, in a sparse index, we do <em>not</em> try to load a ‘.gitattributes’ file from within a sparse directory. </p></li><li><p>The second index access point is involved in rename detection, specifically when reading from stdin. This was initially added in f0c6b2a2fd9 ([PATCH] Optimize diff-tree -[CM]–stdin, 2005-05-27), where ‘setup’ was set to ‘DIFF_SETUP_USE_SIZE_CACHE |DIFF_SETUP_USE_CACHE’. That assignment was later modified to drop the ‘DIFF_SETUP_USE_CACHE’ in ff7fe37b053 (diff.c: move read_index() code back to the caller, 2018-08-13). However, ‘DIFF_SETUP_USE_SIZE_CACHE’ seems to be unused as of 6e0b8ed6d35 (diff.c: do not use a separate “size cache”., 2007-05-07) and nothing about ‘detect_rename’ otherwise indicates index usage.</p></li></ol><p>Therefore, we ensured that the integration is comprehensive and correct. Finally, in performance tests, everything was as expected, achieving a ~98% reduction in execution time.</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> GSoC </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> GSoC </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MATHEMATICAL INDUCTION</title>
       <link href="/2022/09/17/New%20Document/"/>
       <url>/2022/09/17/New%20Document/</url>

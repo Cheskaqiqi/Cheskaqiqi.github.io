@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>GSoC week7-8</title>
+      <link href="/2023/07/05/Week7-8/"/>
+      <url>/2023/07/05/Week7-8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="week7-8"><a href="#week7-8" class="headerlink" title="week7-8"></a>week7-8</h1><p>This week, as I was examining the part involving “S_ISSPARSEDIR(ce-&gt;ce_mode)” in “builtin/grep.c: integrate with sparse index”, I realized that the rationale behind using “init_tree_desc(&amp;tree, data, size)” is to ensure that the “tree_entry” in “grep_tree” can iterate through all entries in a tree.</p><p>Fortuitously, there is a method in the source code - “read_attr_from_blob” - which successfully retrieves an entry for a given path from the specified tree object using the “get_tree_entry” function.</p><p>If the path is not a sparse directory, it simply reads the BLOB using “repo_read_object_file”.</p><p>I’ve also updated the original tests to now include:</p><p>1.Manually adding an untracked .gitattributes file to a sparse directory, then using ‘check-attr’ on a file in that directory.<br>2.Adding a ‘.gitattributes’ file inside a sparse directory, committing it, then running ‘git sparse-checkout reapply’, and finally using ‘check-attr’ on a file in that directory.</p><p>Here’s the patch link:<br><a href="https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927">https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927</a></p><p>Following my mentor’s advice, I’ve made some modifications. I want to elaborate on the most crucial part of these modifications, which concerns ‘read’.</p><pre><code>if (*path is inside sparse directory*)    stack = read_attr_from_blob(istate,                     *sparse directory containing path*,                     *path relative to sparse directory*,                     flags);else    stack = *read .gitattributes from index blob*"path is inside sparse directory" can be determined using a combination of 'path_in_cone_mode_sparse_checkout()' &amp; 'index_name_pos_sparse()'. An  example of similar logic can be found in 'entry_is_new_sparse_dir()' in  'unpack-trees.c'. "sparse directory containing path" and "path relative to sparse directory"  can be determined from the results of 'index_name_pos_sparse()'.</code></pre><p>The ‘entry is_new sparse dir’ function is used to determine whether a given path should be unpacked as a new sparse directory in the sparse index. This function first checks whether the given path is a directory, and then checks if it is within the range of sparse checkout. Then, the function determines the location of this path in the index and checks whether it already exists in the index or whether there are any child entries in the index.<br>In this function, index_name_pos_sparse is used to find the position of dirpath in the index. The return value from this function can be one of two cases:</p><p>If the return value is &gt;= 0, this means dirpath already exists in the index.<br>If the return value is &lt; 0, this means dirpath does not exist in the index. However, the negative of this return value can be used to determine the position where dirpath should be inserted in the index. Specifically, if the return value is pos, then dirpath should be inserted at position -pos - 1 in the index.<br>So in this function, -pos - 1 is used to indicate the position where dirpath should be inserted in the index.<br>Based on the analysis above, it brings us back to the code that needs a bit of tweaking: ‘read_attr_from_index’：After calling index_name_pos_sparse, a negative position is returned if the path is not found in the index. We negate and subtract 2 to get the position of the closest directory entry that is less than the provided path. The “minus two” gives us the position of the entry preceding the file’s path in the index.<br>This is important because if the path is contained within a sparse directory, the preceding entry will be that directory.<br>You can check out the remaining code changes at the link below:<br><a href="https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927">https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> GSoC </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> GSoC </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>GSoC week5-6</title>
+      <link href="/2023/06/25/Week5-6/"/>
+      <url>/2023/06/25/Week5-6/</url>
+      
+        <content type="html"><![CDATA[<h1 id="week5-6"><a href="#week5-6" class="headerlink" title="week5-6"></a>week5-6</h1><p>This week, I started to delve into the source code of git check-attr with the goal of creating an effective test. git_check_attr operates by iterating over all attributes listed in the attr_check structure. It checks the values of these attributes for a specific file and subsequently stores the results back into the attr_check structure. This mechanism enables simultaneous querying of multiple attributes, eliminating the need for repeated function calls. After examining the source code, I crafted my first test which, to my delight, passed in its entirety. This led me to believe that this command had been successfully integrated with the sparse command at some point. However, this assumption was later proven incorrect.</p><pre><code>test_expect_success 'check-attr with pathspec inside sparse definition' '    init_repos &amp;&amp;    echo "a -crlf myAttr" &gt;&gt;.gitattributes &amp;&amp;    run_on_all cp ../.gitattributes . &amp;&amp;     git check-attr -a -- deep/a &amp;&amp;    test_all_match git add deep/.gitattributes &amp;&amp;    test_all_match git check-attr -a --cached -- deep/a'test_expect_success 'check-attr with pathspec inside sparse definition' '    init_repos &amp;&amp;     "a -crlf myAttr" &gt;&gt;.gitattributes &amp;&amp;    run_on_all cp ../.gitattributes . &amp;&amp;    test_all_match git check-attr -a -- folder1/a &amp;&amp;    test_all_match git add folder1/.gitattributes &amp;&amp;    test_all_match git check-attr -a --cached -- folder1/a'</code></pre><p>In the context of the read_attr function, when direction is set to GIT_ATTR_INDEX, the attributes are fetched from the index. If the direction is GIT_ATTR_CHECKOUT, an attempt is made to read the attributes from the index first, and if unsuccessful, the function tries to retrieve them from the file. Similarly, if the direction is GIT_ATTR_CHECKIN, the attributes are initially attempted to be read from the file, and if this fails, the function tries to fetch them from the index.</p><p>The process of extracting attributes from the index is carried out by the read_attr_from_index function. It utilizes the path_in_cone_mode_sparse_checkout function to verify if the specified path falls within the sparse checkout scope. If it doesn’t, the function returns NULL. This sheds light on why the aforementioned test was successful; instead of searching for attributes in the index, we were traversing the working tree for the ‘.gitattributes’ file in all instances of this test.</p><p>My mentor, Victoria, identified a limitation in this code. She explained that if someone need to read the attributes of a file located within a sparse directory, it’s necessary to read attributes from any ‘.gitattributes’ files that might be present in that sparse directory. She suggested that I should read the blob OIDs from the tree entry of the sparse directory, citing the example of “builtin/grep.c: integrate with sparse index”.</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> GSoC </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> GSoC </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>GSoC week3-4</title>
       <link href="/2023/06/19/Week3-4/"/>
       <url>/2023/06/19/Week3-4/</url>

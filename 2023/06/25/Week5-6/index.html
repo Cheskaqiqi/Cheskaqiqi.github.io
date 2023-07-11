@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shuqi Liang">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="GSoC week3-4"/>
+  <meta property="og:title" content="GSoC week5-6"/>
   <meta property="og:description" content="" />
   <meta property="og:site_name" content="Shuqi&#39;s Blog"/>
   <meta property="og:type" content="article" />
@@ -49,7 +49,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">GSoC week3-4</p>
+          <p class="title">GSoC week5-6</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -105,7 +105,7 @@
           
           <!-- Date -->
           <span class="date-time info">On
-            <span class="date">2023-06-19</span>
+            <span class="date">2023-06-25</span>
             <span class="time">02:44:17</span>
           </span>
           
@@ -128,15 +128,34 @@
         
         <!-- Post Main Content -->
         <div class="post-content">
-          <h1 id="week3-4"><a href="#week3-4" class="headerlink" title="week3-4"></a>week3-4</h1><p>When I started studying git worktree, I went through a period of mental confusion. At first, I started studying the documentation to get familiar with the command, which differs significantly from other commands: it manages multiple working trees attached to the same repository. I spent a lot of time understanding this concept, and it was only after trying to use the command that I understood how it should be used. However, I was still puzzled by this concept. I wondered how it was related to the index, since it creates a new working tree each time. When I was confused, I thought I should seriously study the source code and look for places where it interacts with the index.</p>
-<p>I eventually found two places related to the index:</p>
-<ol>
-<li><p>The ‘validate_no_submodules’ function, which checks if there are any submodules present in the worktree.</p>
-</li>
-<li><p>The ‘check_clean_worktree’ function, which verifies if a worktree is ‘clean’, i.e., there are no untracked or modified but uncommitted files. This is done by running the ‘git status’ command, and an error message is thrown if the worktree is not clean. Given that ‘git status’ is already sparse-aware, the function is also sparse-aware.</p>
-</li>
-</ol>
-<p>So the next steps were quite similar to those with diff-tree, as we had evidence to show that we didn’t need to do any extra handling of the index. Finally, we didn’t see a significant improvement in performance testing, mainly because the time taken to read the index is minuscule compared to filesystem operations.</p>
+          <h1 id="week5-6"><a href="#week5-6" class="headerlink" title="week5-6"></a>week5-6</h1><p>This week, I started to delve into the source code of git check-attr with the goal of creating an effective test. git_check_attr operates by iterating over all attributes listed in the attr_check structure. It checks the values of these attributes for a specific file and subsequently stores the results back into the attr_check structure. This mechanism enables simultaneous querying of multiple attributes, eliminating the need for repeated function calls. After examining the source code, I crafted my first test which, to my delight, passed in its entirety. This led me to believe that this command had been successfully integrated with the sparse command at some point. However, this assumption was later proven incorrect.</p>
+<pre><code>test_expect_success 'check-attr with pathspec inside sparse definition' '
+    init_repos &amp;&amp;
+
+    echo "a -crlf myAttr" &gt;&gt;.gitattributes &amp;&amp;
+    run_on_all cp ../.gitattributes . &amp;&amp;
+
+     git check-attr -a -- deep/a &amp;&amp;
+
+    test_all_match git add deep/.gitattributes &amp;&amp;
+    test_all_match git check-attr -a --cached -- deep/a
+'
+
+test_expect_success 'check-attr with pathspec inside sparse definition' '
+    init_repos &amp;&amp;
+
+     "a -crlf myAttr" &gt;&gt;.gitattributes &amp;&amp;
+    run_on_all cp ../.gitattributes . &amp;&amp;
+
+    test_all_match git check-attr -a -- folder1/a &amp;&amp;
+
+    test_all_match git add folder1/.gitattributes &amp;&amp;
+    test_all_match git check-attr -a --cached -- folder1/a
+'
+</code></pre>
+<p>In the context of the read_attr function, when direction is set to GIT_ATTR_INDEX, the attributes are fetched from the index. If the direction is GIT_ATTR_CHECKOUT, an attempt is made to read the attributes from the index first, and if unsuccessful, the function tries to retrieve them from the file. Similarly, if the direction is GIT_ATTR_CHECKIN, the attributes are initially attempted to be read from the file, and if this fails, the function tries to fetch them from the index.</p>
+<p>The process of extracting attributes from the index is carried out by the read_attr_from_index function. It utilizes the path_in_cone_mode_sparse_checkout function to verify if the specified path falls within the sparse checkout scope. If it doesn’t, the function returns NULL. This sheds light on why the aforementioned test was successful; instead of searching for attributes in the index, we were traversing the working tree for the ‘.gitattributes’ file in all instances of this test.</p>
+<p>My mentor, Victoria, identified a limitation in this code. She explained that if someone need to read the attributes of a file located within a sparse directory, it’s necessary to read attributes from any ‘.gitattributes’ files that might be present in that sparse directory. She suggested that I should read the blob OIDs from the tree entry of the sparse directory, citing the example of “builtin/grep.c: integrate with sparse index”.</p>
 
         </div>
       </div>

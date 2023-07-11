@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="Shuqi Liang">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="GSoC week3-4"/>
+  <meta property="og:title" content="GSoC week7-8"/>
   <meta property="og:description" content="" />
   <meta property="og:site_name" content="Shuqi&#39;s Blog"/>
   <meta property="og:type" content="article" />
@@ -49,7 +49,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">GSoC week3-4</p>
+          <p class="title">GSoC week7-8</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -105,7 +105,7 @@
           
           <!-- Date -->
           <span class="date-time info">On
-            <span class="date">2023-06-19</span>
+            <span class="date">2023-07-05</span>
             <span class="time">02:44:17</span>
           </span>
           
@@ -128,15 +128,30 @@
         
         <!-- Post Main Content -->
         <div class="post-content">
-          <h1 id="week3-4"><a href="#week3-4" class="headerlink" title="week3-4"></a>week3-4</h1><p>When I started studying git worktree, I went through a period of mental confusion. At first, I started studying the documentation to get familiar with the command, which differs significantly from other commands: it manages multiple working trees attached to the same repository. I spent a lot of time understanding this concept, and it was only after trying to use the command that I understood how it should be used. However, I was still puzzled by this concept. I wondered how it was related to the index, since it creates a new working tree each time. When I was confused, I thought I should seriously study the source code and look for places where it interacts with the index.</p>
-<p>I eventually found two places related to the index:</p>
-<ol>
-<li><p>The ‘validate_no_submodules’ function, which checks if there are any submodules present in the worktree.</p>
-</li>
-<li><p>The ‘check_clean_worktree’ function, which verifies if a worktree is ‘clean’, i.e., there are no untracked or modified but uncommitted files. This is done by running the ‘git status’ command, and an error message is thrown if the worktree is not clean. Given that ‘git status’ is already sparse-aware, the function is also sparse-aware.</p>
-</li>
-</ol>
-<p>So the next steps were quite similar to those with diff-tree, as we had evidence to show that we didn’t need to do any extra handling of the index. Finally, we didn’t see a significant improvement in performance testing, mainly because the time taken to read the index is minuscule compared to filesystem operations.</p>
+          <h1 id="week7-8"><a href="#week7-8" class="headerlink" title="week7-8"></a>week7-8</h1><p>This week, as I was examining the part involving “S_ISSPARSEDIR(ce-&gt;ce_mode)” in “builtin/grep.c: integrate with sparse index”, I realized that the rationale behind using “init_tree_desc(&amp;tree, data, size)” is to ensure that the “tree_entry” in “grep_tree” can iterate through all entries in a tree.</p>
+<p>Fortuitously, there is a method in the source code - “read_attr_from_blob” - which successfully retrieves an entry for a given path from the specified tree object using the “get_tree_entry” function.</p>
+<p>If the path is not a sparse directory, it simply reads the BLOB using “repo_read_object_file”.</p>
+<p>I’ve also updated the original tests to now include:</p>
+<p>1.Manually adding an untracked .gitattributes file to a sparse directory, then using ‘check-attr’ on a file in that directory.<br>2.Adding a ‘.gitattributes’ file inside a sparse directory, committing it, then running ‘git sparse-checkout reapply’, and finally using ‘check-attr’ on a file in that directory.</p>
+<p>Here’s the patch link:<br><a target="_blank" rel="noopener" href="https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927">https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927</a></p>
+<p>Following my mentor’s advice, I’ve made some modifications. I want to elaborate on the most crucial part of these modifications, which concerns ‘read’.</p>
+<pre><code>if (*path is inside sparse directory*)
+    stack = read_attr_from_blob(istate, 
+                    *sparse directory containing path*, 
+                    *path relative to sparse directory*, 
+                    flags);
+else
+    stack = *read .gitattributes from index blob*
+
+"path is inside sparse directory" can be determined using a combination of
+ 'path_in_cone_mode_sparse_checkout()' &amp; 'index_name_pos_sparse()'. An
+  example of similar logic can be found in 'entry_is_new_sparse_dir()' in
+  'unpack-trees.c'.
+ "sparse directory containing path" and "path relative to sparse directory"
+  can be determined from the results of 'index_name_pos_sparse()'.
+</code></pre>
+<p>The ‘entry is_new sparse dir’ function is used to determine whether a given path should be unpacked as a new sparse directory in the sparse index. This function first checks whether the given path is a directory, and then checks if it is within the range of sparse checkout. Then, the function determines the location of this path in the index and checks whether it already exists in the index or whether there are any child entries in the index.<br>In this function, index_name_pos_sparse is used to find the position of dirpath in the index. The return value from this function can be one of two cases:</p>
+<p>If the return value is &gt;= 0, this means dirpath already exists in the index.<br>If the return value is &lt; 0, this means dirpath does not exist in the index. However, the negative of this return value can be used to determine the position where dirpath should be inserted in the index. Specifically, if the return value is pos, then dirpath should be inserted at position -pos - 1 in the index.<br>So in this function, -pos - 1 is used to indicate the position where dirpath should be inserted in the index.<br>Based on the analysis above, it brings us back to the code that needs a bit of tweaking: ‘read_attr_from_index’：After calling index_name_pos_sparse, a negative position is returned if the path is not found in the index. We negate and subtract 2 to get the position of the closest directory entry that is less than the provided path. The “minus two” gives us the position of the entry preceding the file’s path in the index.<br>This is important because if the path is contained within a sparse directory, the preceding entry will be that directory.<br>You can check out the remaining code changes at the link below:<br><a target="_blank" rel="noopener" href="https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927">https://lore.kernel.org/git/20230701064843.147496-1-cheskaqiqi@gmail.com/T/#ma891212eb58419d8e73f061fd44a659941e42927</a></p>
 
         </div>
       </div>

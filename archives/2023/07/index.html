@@ -8,10 +8,10 @@
   <meta name="description" content="">
   <meta name="author" content="Shuqi Liang">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="GSoC week3-4"/>
+  <meta property="og:title" content="Shuqi&#39;s Blog"/>
   <meta property="og:description" content="" />
   <meta property="og:site_name" content="Shuqi&#39;s Blog"/>
-  <meta property="og:type" content="article" />
+  <meta property="og:type" content="website" />
   <meta property="og:image" content="http://example.com"/>
   
     <link rel="alternate" href="/atom.xml" title="Shuqi&#39;s Blog" type="application/atom+xml">
@@ -41,7 +41,8 @@
 </head>
 
   <body>
-    <!-- Page Header -->
+    <!-- Archive Header -->
+<!-- Page Header -->
 
 
 <header class="site-header header-background" style="background-image: url(/img/default-banner-dark.jpg)">
@@ -49,7 +50,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">GSoC week3-4</p>
+          <p class="title">Blog Archives</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -94,55 +95,34 @@
   </div>
 </header>
 
-<article>
-  <div class="container typo">
-    <div class="row">
-      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-        <div class="post-info text-muted">
-          
-            <!-- Author -->
-            <span class="author info">By Shuqi Liang</span>
-          
-          <!-- Date -->
-          <span class="date-time info">On
-            <span class="date">2023-06-19</span>
-            <span class="time">02:44:17</span>
-          </span>
-          
-          <!--  Categories  -->
-            <span class="categories info">Under 
+<!-- Archive List -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      
+        <div class="archive-item">
+  <a href="/2023/07/05/Week7-8/" class="post-title">
+    GSoC week7-8
+  </a>
+  <div class="date text-muted">Posted on 2023-07-05 12:51:23</div>
+</div>
 
-<a href="/categories/GSoC/">GSoC</a>
-</span>
-          
-        </div>
-        <!-- Tags -->
-        
-          <div class="post-tags text-muted">
-            Tags: 
+      
 
-<a class="tag" href="/tags/GSoC/">#GSoC</a>
-
-
-          </div>
-        
-        <!-- Post Main Content -->
-        <div class="post-content">
-          <h1 id="week3-4"><a href="#week3-4" class="headerlink" title="week3-4"></a>week3-4</h1><p>When I started studying git worktree, I went through a period of mental confusion. At first, I started studying the documentation to get familiar with the command, which differs significantly from other commands: it manages multiple working trees attached to the same repository. I spent a lot of time understanding this concept, and it was only after trying to use the command that I understood how it should be used. However, I was still puzzled by this concept. I wondered how it was related to the index, since it creates a new working tree each time. When I was confused, I thought I should seriously study the source code and look for places where it interacts with the index.</p>
-<p>I eventually found two places related to the index:</p>
-<ol>
-<li><p>The ‘validate_no_submodules’ function, which checks if there are any submodules present in the worktree.</p>
-</li>
-<li><p>The ‘check_clean_worktree’ function, which verifies if a worktree is ‘clean’, i.e., there are no untracked or modified but uncommitted files. This is done by running the ‘git status’ command, and an error message is thrown if the worktree is not clean. Given that ‘git status’ is already sparse-aware, the function is also sparse-aware.</p>
-</li>
-</ol>
-<p>So the next steps were quite similar to those with diff-tree, as we had evidence to show that we didn’t need to do any extra handling of the index. Finally, we didn’t see a significant improvement in performance testing, mainly because the time taken to read the index is minuscule compared to filesystem operations.</p>
-
-        </div>
-      </div>
     </div>
   </div>
-</article>
+</div>
+<!-- Pagination -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 col-md-10 col-md-offset-1">
+      <ul class="pagination">
+          
+          
+      </ul>
+    </div>
+  </div>
+</div>
 
 
 

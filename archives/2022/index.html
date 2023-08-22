@@ -104,7 +104,7 @@
   <a href="/2022/09/17/New%20Document/" class="post-title">
     MATHEMATICAL INDUCTION
   </a>
-  <div class="date text-muted">Posted on 2022-09-17 04:39:58</div>
+  <div class="date text-muted">Posted on 2022-09-17 16:39:58</div>
 </div>
 
       
@@ -112,7 +112,7 @@
   <a href="/2022/02/11/red-black-tree/" class="post-title">
     BINARY SEARCH AND VARIATIONS
   </a>
-  <div class="date text-muted">Posted on 2022-02-11 00:29:58</div>
+  <div class="date text-muted">Posted on 2022-02-11 13:29:58</div>
 </div>
 
       
@@ -164,6 +164,21 @@
   });
 </script>
 
-  </body>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 

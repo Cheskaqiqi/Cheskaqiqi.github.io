@@ -104,7 +104,7 @@
   <a href="/2023/06/25/Week5-6/" class="post-title">
     GSoC week5-6
   </a>
-  <div class="date text-muted">Posted on 2023-06-25 09:32:45</div>
+  <div class="date text-muted">Posted on 2023-06-25 21:32:45</div>
 </div>
 
       
@@ -112,7 +112,7 @@
   <a href="/2023/06/19/Week3-4/" class="post-title">
     GSoC week3-4
   </a>
-  <div class="date text-muted">Posted on 2023-06-19 11:45:58</div>
+  <div class="date text-muted">Posted on 2023-06-19 23:45:58</div>
 </div>
 
       
@@ -120,7 +120,7 @@
   <a href="/2023/06/19/Week1-2/" class="post-title">
     GSoC week1-2
   </a>
-  <div class="date text-muted">Posted on 2023-06-19 10:45:58</div>
+  <div class="date text-muted">Posted on 2023-06-19 22:45:58</div>
 </div>
 
       
@@ -172,6 +172,21 @@
   });
 </script>
 
-  </body>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 
